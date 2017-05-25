@@ -3,14 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.3",
+    "express": "^4.15.3",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "rethinkdb": "^2.3.3",
+    "rethinkdb-init": "^0.2.2"
   },
   "devDependencies": {
+    "nodemon": "^1.11.0",
+    "npm-run-all": "^4.0.2",
     "react-scripts": "1.0.6"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "run-p express react",
+    "express": "nodemon server.js --watch server.js",
+    "react": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
