@@ -9,6 +9,8 @@ class App extends Component {
       form: {},
       list: null
     }
+    this._formHandle = this._formHandle.bind(this)
+    this._submitForm = this._submitForm.bind(this)
   }
 
   render () {
@@ -16,53 +18,78 @@ class App extends Component {
       <div className='App'>
         <pre>{this.state.res}</pre>
         <label>
-          <input type='text' onChange={this.formHandle.bind(this)} name='name' />
+          Name:&nbsp;
+          <input
+            type='text'
+            name='name'
+            onChange={this._formHandle}
+            value={this.state.form.name}
+          />
         </label>
         <label>
-          <input type='text' onChange={this.formHandle.bind(this)} name='address' />
+          Address:&nbsp;
+          <input
+            type='text'
+            name='address'
+            onChange={this._formHandle}
+            value={this.state.form.address}
+          />
         </label>
-        <button onClick={this.submit.bind(this)}>add</button>
+        <button onClick={this._submitForm}>ADD</button>
         <ul>{this.state.list}</ul>
       </div>
     )
   }
 
-  formHandle (e) {
+  _formHandle (e) {
     const nstate = {}
     nstate[e.target.name] = e.target.value
-    this.setState({
-      form: Object.assign(this.state.form, nstate)
-    })
+    this.setState({ form: Object.assign(this.state.form, nstate) })
   }
 
-  submit () {
-    window.fetch('http://localhost:8000/add', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.state.form)
-    }).then(() => {
-      this.setState({
-        res: 'Success'
+  _submitForm () {
+    window
+      .fetch('http://localhost:8000/add', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.state.form)
       })
-    }).catch((e) => {
-      console.log(e)
-      this.setState({
-        res: 'Failed!'
+      .then(res => {
+        // status code other than 200 means server sent error
+        if (res.status === 200) {
+          this.setState({
+            res: 'Success',
+            form: {
+              name: '',
+              address: ''
+            }
+          })
+        } else {
+          throw new Error(res.status)
+        }
       })
-    })
+      .catch(e => {
+        console.log(e)
+        this.setState({
+          res: 'Failed!'
+        })
+      })
   }
   componentDidMount () {
     this.componentDidUpdate()
   }
 
   componentDidUpdate () {
-    window.fetch('http://localhost:8000/list')
+    window
+      .fetch('http://localhost:8000/list')
       .then(res => res.json())
-      .then(({data}) => {
-        const list = data.map((el, id) => <li key={id}>{el.name}<br />{el.address}</li>)
-        this.setState({list})
+      .then(({ data }) => {
+        const list = data.map((el, id) => (
+          <li key={id}>{el.name}<br />{el.address}</li>
+        ))
+        this.setState({ list })
       })
   }
 }
